@@ -133,5 +133,6 @@ dmypy.json
 
 # Data
 data/*.csv
+data/*/*.tsv
 data/*/*.json
 data/*/*.pdf
