@@ -206,7 +206,8 @@ def main():
         model_args.model_name_or_path,
         from_tf=bool(".ckpt" in model_args.model_name_or_path),
         config=config,
-        cache_dir=model_args.cache_dir
+        cache_dir=model_args.cache_dir,
+        ignore_mismatched_sizes=True
     )
 
     # Preprocessing the raw_datasets
