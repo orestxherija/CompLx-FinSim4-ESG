@@ -20,9 +20,9 @@ import logging
 import os
 import sys
 import typing
-import scipy
 
 import datasets
+import numpy
 import transformers
 
 logger = logging.getLogger(__name__)
@@ -226,17 +226,15 @@ def main():
         logger.info("*** Predict ***")
 
         # Removing the `label` columns because it contains -1 and Trainer won't like that.
-        # predict_dataset = predict_dataset.remove_columns("label")
+        predict_dataset = predict_dataset.remove_columns("label")
         logits = trainer.predict(predict_dataset, metric_key_prefix="predict").predictions
-        probabilities = scipy.special.softmax(logits, axis=1)[:, 1]
-        # import numpy
-        # probabilities = numpy.argmax(logits, axis=1)
+        predictions = numpy.argmax(logits, axis=1)
 
         output_predict_file = os.path.join(training_args.output_dir, f"test_results.txt")
         if trainer.is_world_process_zero():
             with open(output_predict_file, "w") as writer:
                 logger.info(f"***** Predict results *****")
-                for index, prob in enumerate(probabilities):
+                for index, prob in enumerate(predictions):
                     writer.write(f"{index}\t{prob}\n")
 
 
