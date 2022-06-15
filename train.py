@@ -22,9 +22,9 @@ import sys
 import typing
 
 import datasets
+import numpy
+import sklearn.metrics
 import transformers
-
-import metrics
 
 logger = logging.getLogger(__name__)
 
@@ -274,13 +274,31 @@ def main():
         early_stopping_threshold=data_args.early_stopping_threshold
     )
 
+    def compute_classification_metrics(p: transformers.EvalPrediction):
+        y_pred = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
+        y_true = p.label_ids
+        y_pred = numpy.argmax(y_pred, axis=1)
+
+        recall = sklearn.metrics.recall_score(y_true=y_true, y_pred=y_pred)
+        precision = sklearn.metrics.precision_score(y_true=y_true, y_pred=y_pred)
+        f1 = sklearn.metrics.f1_score(y_true=y_true, y_pred=y_pred)
+        _, fp, fn, _ = sklearn.metrics.confusion_matrix(y_true=y_pred, y_pred=y_pred).ravel()
+        return {
+            "accuracy": (y_pred == y_true).astype(numpy.float32).mean().item(),
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+            "fp": fp,
+            "fn": fn
+        }
+
     # Initialize our Trainer
     trainer = transformers.Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
         eval_dataset=eval_dataset if training_args.do_eval else None,
-        compute_metrics=metrics.compute_classification_metrics,
+        compute_metrics=compute_classification_metrics,
         tokenizer=tokenizer,
         data_collator=data_collator,
         callbacks=[early_stopper]
