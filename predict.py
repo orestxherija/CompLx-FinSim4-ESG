@@ -20,6 +20,7 @@ import logging
 import os
 import sys
 import typing
+import json
 
 import datasets
 import numpy
@@ -38,6 +39,12 @@ class DataTrainingArguments:
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
                     "than this will be truncated, sequences shorter will be padded."
+        },
+    )
+    out_filename: str = dataclasses.field(
+        default="test_results",
+        metadata={
+            "help": "Filename of file in which we will store test set predictions."
         },
     )
     overwrite_cache: bool = dataclasses.field(
@@ -230,12 +237,19 @@ def main():
         logits = trainer.predict(predict_dataset, metric_key_prefix="predict").predictions
         predictions = numpy.argmax(logits, axis=1)
 
-        output_predict_file = os.path.join(training_args.output_dir, f"test_results.txt")
+        output_predict_file = os.path.join(training_args.output_dir, f"{data_args.out_filename}.json")
+        outputs = [
+            {
+                "sentence": text,
+                "label": "",
+                "predicted_label": "sustainable" if pred == 1 else "unsustainable"
+            }
+            for (text, pred) in zip(predict_dataset["sentence1"], predictions)]
+
         if trainer.is_world_process_zero():
             with open(output_predict_file, "w") as writer:
                 logger.info(f"***** Predict results *****")
-                for index, prob in enumerate(predictions):
-                    writer.write(f"{index}\t{prob}\n")
+                json.dump(outputs, writer)
 
 
 if __name__ == "__main__":
