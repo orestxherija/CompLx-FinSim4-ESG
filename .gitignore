@@ -132,7 +132,9 @@ dmypy.json
 .idea/
 
 # Data
-data/*.csv
-data/*/*.tsv
-data/*/*.json
-data/*/*.pdf
+data/**/*.csv
+data/**/*.json
+predictions/
+
+# Model checkpoints
+checkpoints/
