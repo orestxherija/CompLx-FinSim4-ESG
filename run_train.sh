@@ -4,7 +4,7 @@ HF_MODEL="microsoft/deberta-v3-large"
 MODEL_NAME=$(echo $HF_MODEL | rev | cut -d/ -f1 | rev)
 EXTENSION="finetuned-finsim4-esg"
 
-python hf_train.py \
+python train.py \
   --model_name_or_path $HF_MODEL \
   --do_train \
   --do_eval \

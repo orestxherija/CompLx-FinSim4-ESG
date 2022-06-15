@@ -3,7 +3,7 @@
 HF_MODEL="checkpoints/deberta-v3-large-finetuned-finsim4-esg"
 MODEL_NAME=$(echo $HF_MODEL | rev | cut -d/ -f1 | rev)
 
-python hf_predict.py \
+python predict.py \
   --model_name_or_path $HF_MODEL \
   --test_file data/processed/test.csv \
   --do_predict \
