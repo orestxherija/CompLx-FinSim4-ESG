@@ -24,19 +24,9 @@ import typing
 import datasets
 import transformers
 
-import utils
+import metrics
 
 logger = logging.getLogger(__name__)
-
-# TODO: add all PyCharm plugins
-# TODO: finish cleaning up code
-# TODO: add full suite of Trainer arguments
-# TODO: add WANDB support. --report_to, --run_name, WandbCallback
-# TODO: Write a class to choose optimal prob threshold for maximal F1
-# TODO: store probabilities in addition to predictions
-# TODO: neural network calibration
-# TODO: check whether inference module loads the latest/best model for inference
-# TODO: only store models if performance has improved
 
 
 @dataclasses.dataclass
@@ -290,7 +280,7 @@ def main():
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
         eval_dataset=eval_dataset if training_args.do_eval else None,
-        compute_metrics=utils.compute_classification_metrics,
+        compute_metrics=metrics.compute_classification_metrics,
         tokenizer=tokenizer,
         data_collator=data_collator,
         callbacks=[early_stopper]
